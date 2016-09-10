@@ -1,0 +1,23 @@
+---
+project:
+- type: file
+  name: requirements.txt
+  template: base/requirements.txt
+- type: file
+  name: runserver.py
+  template: base/runserver.py
+- type: dir
+  name: static
+  children:
+  - type: dir
+    name: css
+  - type: dir
+    name: images
+  - type: dir
+    name: js
+- type: dir
+  name: templates
+  children:
+  - type: file
+    name: base.html
+    template: base/base.html
