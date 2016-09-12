@@ -14,24 +14,37 @@ from docopt import docopt
 
 
 class GenerateSkeleton:
-    def __init__(self, name, template_name='base'):
+    def __init__(self, name, output='.', template_name='base'):
+        self.app_name = name
         self.template_path = os.path.join(
             'flask-generator/templates/', template_name)
 
     def handle(self):
+        print('\n\tcreate: {0}'.format(self.app_name))
+
+        base_path = '/tmp/'
+        os.mkdir(base_path + self.app_name)
+
         skeleton = self.load_skeleton()
+        self.parse(skeleton, parent=self.app_name)
 
-        self.parse(skeleton)
-
-    def parse(self, skeleton):
+    def parse(self, skeleton, parent):
         for key in skeleton:
-            print(key)
+            print('\tcreate: {0}/{1}'.format(parent, key['name']))
+
+            if key['type'] == 'dir' and 'children' in key:
+                os.mkdir(os.path.join('/tmp', parent) + '/' + key['name'])
+                if 'children' in key:
+                    new_parent = os.path.join(parent, key['name'])
+                    self.parse(key['children'], parent=new_parent)
+
             if key['type'] == 'file':
-                pass  # create file and put template inside
-            elif key['type'] == 'dir':
-                pass  # create dir and call parse again
-            else:
-                raise Exception('Erro boladao')
+                filepath = os.path.join(self.template_path, key['name'])
+                with open(filepath, 'r') as f:
+                    content = f.read()
+
+                with open(os.path.join('/tmp', parent) + '/' + key['name'], 'w+') as f:
+                    f.write(content)
 
     def load_skeleton(self):
         schema = os.path.join(self.template_path, 'schema.yml')
